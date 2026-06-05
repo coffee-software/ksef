@@ -77,7 +77,8 @@ class KsefClient {
 
   /// KSeF token auth = Base64( RSA-OAEP-SHA256( utf8("token|timestamp") ) )
   String _buildEncryptedToken(int timestampMs, RSAPublicKey publicKey) {
-    //final timestampMs = DateTime.parse(timestamp).toUtc().millisecondsSinceEpoch;
+    // TODO: remove this after fixing KSeF docs and confirming this is a proper way
+    // final timestampMs = DateTime.parse(timestamp).toUtc().millisecondsSinceEpoch;
     final plaintextStr = '$token|$timestampMs';
     final plaintext = utf8.encode(plaintextStr);
 
@@ -136,25 +137,25 @@ class KsefClient {
     _saveTokens(tokens);
   }
 
-  String? accessToken;
+  String? _accessToken;
   DateTime? _accessTokenExpiry;
   String? _refreshToken;
   Future<String> getValidAccessToken() async {
-    if (accessToken != null &&
+    if (_accessToken != null &&
         _accessTokenExpiry != null &&
         _accessTokenExpiry!.isAfter(DateTime.now().add(const Duration(minutes: 2)))) {
-      return accessToken!;
+      return _accessToken!;
     }
     if (_refreshToken != null) {
       try {
         await _refreshAccessToken();
-        return accessToken!;
+        return _accessToken!;
       } catch (_) {
         _refreshToken = null;
       }
     }
     await authenticate();
-    return accessToken!;
+    return _accessToken!;
   }
 
   DateTime _parseJwtExpiry(String jwt) {
@@ -169,9 +170,9 @@ class KsefClient {
   }
 
   void _saveTokens(Map<String, dynamic> tokens) {
-    accessToken = tokens['accessToken']['token'] as String;
+    _accessToken = tokens['accessToken']['token'] as String;
     _refreshToken = tokens['refreshToken']['token'] as String;
-    _accessTokenExpiry = _parseJwtExpiry(accessToken!);
+    _accessTokenExpiry = _parseJwtExpiry(_accessToken!);
   }
 
   Future<void> _refreshAccessToken() async {
