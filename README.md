@@ -41,7 +41,7 @@ Future<void> main() async {
 
       // poll until accepted or rejected (default timeout: 1 minute)
       final invoiceStatus = await session.waitForInvoiceStatus(
-        invoice,
+        invoiceRequest,
         timeout: const Duration(minutes: 5),
       );
       
