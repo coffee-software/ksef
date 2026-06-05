@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Faktura xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+         xmlns="http://crd.gov.pl/wzor/2025/06/25/13775/">
+    <Naglowek>
+        <KodFormularza kodSystemowy="FA (3)" wersjaSchemy="1-0E">FA</KodFormularza>
+        <WariantFormularza>3</WariantFormularza>
+        <DataWytworzeniaFa>2026-06-05T12:20:21.190703Z</DataWytworzeniaFa>
+        <SystemInfo>ksef.dart</SystemInfo>
+    </Naglowek>
+    <Podmiot1>
+        <DaneIdentyfikacyjne>
+            <NIP>8570939304</NIP>
+            <Nazwa>Nazwa Sprzedawcy</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Test 1 12-123 Miasto</AdresL1>
+        </Adres>
+    </Podmiot1>
+    <Podmiot2>
+        <DaneIdentyfikacyjne>
+            <NIP>9534630199</NIP>
+            <Nazwa>Nazwa Nabywcy</Nazwa>
+        </DaneIdentyfikacyjne>
+        <Adres>
+            <KodKraju>PL</KodKraju>
+            <AdresL1>ul. Test 2 12-123 Miasto</AdresL1>
+        </Adres>
+        <JST>2</JST>
+        <GV>2</GV>
+    </Podmiot2>
+    <Fa>
+        <KodWaluty>PLN</KodWaluty>
+        <P_1>2026-06-05</P_1>
+        <P_2>FAKTURA_TESTOWA_123</P_2>
+        <P_13_1>615</P_13_1>
+        <P_14_1>141.45</P_14_1>
+        <P_15>756.45</P_15>
+        <Adnotacje>
+            <P_16>2</P_16>
+            <P_17>2</P_17>
+            <P_18>2</P_18>
+            <P_18A>2</P_18A>
+            <Zwolnienie>
+                <P_19N>1</P_19N>
+            </Zwolnienie>
+            <NoweSrodkiTransportu>
+                <P_22N>1</P_22N>
+            </NoweSrodkiTransportu>
+            <P_23>2</P_23>
+            <PMarzy>
+                <P_PMarzyN>1</P_PMarzyN>
+            </PMarzy>
+        </Adnotacje>
+        <RodzajFaktury>VAT</RodzajFaktury>
+        <FaWiersz>
+            <NrWierszaFa>1</NrWierszaFa>
+            <P_7>pozycja testowa</P_7>
+            <P_8A>5</P_8A>
+            <P_8B>5</P_8B>
+            <P_9A>123</P_9A>
+            <P_11>615</P_11>
+            <P_12>23</P_12>
+        </FaWiersz>
+        <Platnosc>
+            <Zaplacono>1</Zaplacono>
+            <DataZaplaty>2026-06-05</DataZaplaty>
+            <PlatnoscInna>1</PlatnoscInna>
+            <OpisPlatnosci>TESTOWY OPIS PLATNOSCI</OpisPlatnosci>
+        </Platnosc>
+    </Fa>
+</Faktura>

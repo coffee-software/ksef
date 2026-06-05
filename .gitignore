@@ -1,0 +1,4 @@
+.dart_tool
+.idea
+pubspec.lock
+test/config.yaml
