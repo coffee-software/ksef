@@ -216,8 +216,9 @@ class KsefClient {
   static String _pad(int n) => n.toString().padLeft(2, '0');
 
   /// Format date and time to be used in invoice XMLs
-  static String formatTimestamp(DateTime time) {
-    return '${formatDate(time)}T${_pad(time.hour)}:${_pad(time.minute)}:${_pad(time.second)}Z';
+  static String formatUtcTimestamp(DateTime time) {
+    var utcTime = time.isUtc ? time : time.toUtc();
+    return '${formatDate(utcTime)}T${_pad(utcTime.hour)}:${_pad(utcTime.minute)}:${_pad(utcTime.second)}Z';
   }
 
   /// Format date to be used in invoice XMLs

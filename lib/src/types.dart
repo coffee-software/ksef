@@ -30,7 +30,7 @@ class KsefPublicKey {
   KsefPublicKey(this.publicKeyId, this.publicKey);
 }
 
-enum KsefInvoiceStatusCodes { pending, accepted, rejected, duplicate, unknown }
+enum KsefInvoiceStatusCode { pending, accepted, rejected, duplicate, unknown }
 
 /// invoice request info returned by KSeF after sending invoice
 class KsefInvoiceRequest {
@@ -43,7 +43,7 @@ class KsefInvoiceRequest {
 /// for code `duplicate`, `ksefNumber` is set to the invoice that this request was a duplicate of.
 /// for other statuses `ksefNumber` is empty and errorInfo contains human readable issue description.
 class KsefInvoiceStatus {
-  KsefInvoiceStatusCodes code = .pending;
+  KsefInvoiceStatusCode code = .pending;
   String? ksefNumber;
   String? errorInfo;
   KsefInvoiceStatus();

@@ -32,6 +32,13 @@ class KsefSession {
     return cipher.process(data);
   }
 
+  /// Encode invoice to XML, encrypt with AES-256-CBC and send.
+  /// This invoice will be processed asynchronously by KSeF.
+  /// `waitForInvoiceStatus` shall be used to check its actual status.
+  Future<KsefInvoiceRequest> sendInvoice(KsefInvoice invoice) async {
+    return await sendRawInvoice(invoice.toXml());
+  }
+
   /// Encrypt invoice with AES-256-CBC and send.
   /// This invoice will be processed asynchronously by KSeF.
   /// `waitForInvoiceStatus` shall be used to check its actual status.
