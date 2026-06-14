@@ -125,7 +125,14 @@ dart test
 - [KSeF API v2 reference](https://api.ksef.mf.gov.pl/docs/v2/index.html)
 - [EN 16931 Business Terms](https://docs.peppol.eu/poacc/billing/3.0/bis/)
 
-## Disclaimer
+## Disclaimers
 
 This is an unofficial library, not affiliated with or endorsed by the Polish
 Ministry of Finance.
+
+Although this library is used in production by **swift.shop** sellers, only a subset
+of FA(3) fields is currently covered. If you plan to use the `KsefInvoice` XML
+generator, it is recommended to first generate a similar invoice using the KSeF web
+panel and compare the resulting XMLs before sending to the KSeF production environment.
+Please report any discrepancies or missing fields at
+https://github.com/coffee-software/ksef/issues
