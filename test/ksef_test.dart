@@ -128,6 +128,30 @@ void main() async {
     ),
   );
 
+  test('ksef nr validation', () async {
+    final client = KsefClient(.test, config['ksef_nip'], config['ksef_token']);
+
+    final testNumber = client.buildKsefNumber('7363337349', '20260614', '000000000000');
+    expect(testNumber, '7363337349-20260614-000000000000-B9');
+
+    final validResult = client.validateKsefNumber(
+      client.buildKsefNumber(config['ksef_nip'], '20260614', '000000000000'),
+    );
+    expect(validResult, true);
+
+    final invalidResult = client.validateKsefNumber('7363337349-20260614-000000000000-00');
+    expect(invalidResult, false);
+  });
+
+  test('test token', () async {
+    final client = KsefClient(.test, config['ksef_nip'], config['ksef_token']);
+    final tokenTest = await client.testToken();
+    expect(tokenTest.canAuthenticate, true);
+    expect(tokenTest.canReadInvoices, true);
+    expect(tokenTest.canWriteInvoices, true);
+    expect(tokenTest.error, null);
+  });
+
   test('generating XML', () async {
     expect(invoice.toXml(), equals(invoiceXml));
   });
@@ -166,5 +190,14 @@ void main() async {
     final client = KsefClient(.test, config['ksef_nip'], config['ksef_token']);
     final invoice = await client.getInvoiceXmlByKsefNumber(goodInvoiceKsefNumber!);
     expect(invoice.contains('<P_2>$invoiceNumber</P_2>'), true);
+  });
+
+  test('fetch non existing invoice', () async {
+    final client = KsefClient(.test, config['ksef_nip'], config['ksef_token']);
+    expect(() async {
+      await client.getInvoiceXmlByKsefNumber(
+        client.buildKsefNumber(config['ksef_nip'], '20260614', '000000000000'),
+      );
+    }, throwsA(isA<KsefException>()));
   });
 }

@@ -26,7 +26,7 @@ class KsefClient {
     _log.fine(body);
     final response = await http.post(Uri.parse('$baseUrl$path'), headers: headers, body: body);
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw KsefException(path, 'HTTP ${response.statusCode}: ${response.body}');
+      throw KsefException(path, response.statusCode, response.body);
     }
     _log.fine(response.body);
     return (T == dynamic) ? response.body as T : (jsonDecode(response.body) as T);
@@ -34,13 +34,13 @@ class KsefClient {
 
   Future<T> _get<T>(String path, String? authToken) async {
     _log.fine('GET $path');
-    final headers = {'Accept': T == String ? 'application/xml' : 'application/json'};
+    final headers = {'Accept': T == String ? '*/*' : 'application/json'};
     if (authToken != null) {
       headers['Authorization'] = 'Bearer $authToken';
     }
     final response = await http.get(Uri.parse('$baseUrl$path'), headers: headers);
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      throw KsefException(path, 'HTTP ${response.statusCode}: ${response.body}');
+      throw KsefException(path, response.statusCode, response.body);
     }
     _log.fine(response.body);
     return (T == String) ? response.body as T : (jsonDecode(response.body) as T);
@@ -128,10 +128,7 @@ class KsefClient {
       }
     }
     if (statusCode != 200) {
-      throw KsefException(
-        '/auth/$referenceNumber',
-        'Auth Exception $statusCode: $statusDescription',
-      );
+      throw KsefException('/auth/$referenceNumber', statusCode, statusDescription);
     }
     final tokens = await _post<Map<String, dynamic>>('/auth/token/redeem', authToken, null);
     _saveTokens(tokens);
@@ -224,5 +221,103 @@ class KsefClient {
   /// Format date to be used in invoice XMLs
   static String formatDate(DateTime time) {
     return '${time.year}-${_pad(time.month)}-${_pad(time.day)}';
+  }
+
+  /// Build KSeF invoice verification URL
+  /// Format: https://qr[-test].ksef.mf.gov.pl/invoice/{nip}/{DD-MM-RRRR}/{sha256Base64Url}
+  /// [invoice] Invoice that was send and accepted by KSeF
+  String buildVerificationUrl(KsefInvoice invoice) {
+    final xmlBytes = Uint8List.fromList(utf8.encode(invoice.toXml()));
+    final hash = base64Url.encode(sha256.convert(xmlBytes).bytes).replaceAll('=', '');
+    final date =
+        '${_pad(invoice.issueDate.day)}-${_pad(invoice.issueDate.month)}-${invoice.issueDate.year}';
+    final nip = invoice.seller.nip!;
+    final base = environment == KsefEnvironment.test
+        ? 'https://qr-test.ksef.mf.gov.pl'
+        : 'https://qr.ksef.mf.gov.pl';
+    return '$base/invoice/$nip/$date/$hash';
+  }
+
+  /// Calculates CRC-8 checksum for a KSeF number.
+  /// Parameters: polynomial=0x07, init=0x00
+  /// Input: 32-char data string INCLUDING dashes
+  /// Output: 2-char uppercase hex string (e.g. "88")
+  String _crc8(String data) {
+    int crc = 0x00;
+    for (final byte in data.codeUnits) {
+      crc ^= byte;
+      for (int i = 0; i < 8; i++) {
+        if (crc & 0x80 != 0) {
+          crc = ((crc << 1) ^ 0x07) & 0xFF;
+        } else {
+          crc = (crc << 1) & 0xFF;
+        }
+      }
+    }
+    return crc.toRadixString(16).toUpperCase().padLeft(2, '0');
+  }
+
+  /// Validates a KSeF invoice number.
+  /// Returns true if the number has correct format and valid CRC-8 checksum.
+  bool validateKsefNumber(String number) {
+    if (number.length != 35) {
+      return false;
+    }
+    final data = number.substring(0, 32);
+    final checksum = number.substring(33);
+    return _crc8(data) == checksum;
+  }
+
+  /// Builds a KSeF number from its parts (useful for testing).
+  String buildKsefNumber(String nip, String date, String techPart) {
+    final data = '$nip-$date-$techPart';
+    return '$data-${_crc8(data)}';
+  }
+
+  /// KSeF api does not provide an endpoint to test token own permissions
+  /// as a workaround we create session to check InvoiceWrite permission
+  /// and fetch non existing invoice to check InvoiceRead permission
+  Future<KsefTokenTest> testToken() async {
+    try {
+      await getValidAccessToken();
+    } catch (e) {
+      return KsefTokenTest(
+        canAuthenticate: false,
+        canWriteInvoices: false,
+        canReadInvoices: false,
+        error: e.toString(),
+      );
+    }
+    final List<String> errors = [];
+
+    // Test InvoiceWrite - try to open session
+    bool canWrite = true;
+    try {
+      final session = await openSession();
+      await session.close();
+    } on KsefException catch (e) {
+      canWrite = false;
+      errors.add(e.toString());
+    }
+
+    // Test InvoiceRead - KSeF should return 404 for non existing invoice,
+    bool canRead = true;
+    try {
+      await getInvoiceXmlByKsefNumber(buildKsefNumber(nip, '20260614', '000000000000'));
+    } on KsefException catch (e) {
+      // KseF returns 403 for missing permissions
+      // but returns 400 for not existing invoices, we assume 404 is ok for us as well (in case this changes)
+      if (![400, 404].contains(e.httpCode)) {
+        canRead = false;
+        errors.add(e.toString());
+      }
+    }
+
+    return KsefTokenTest(
+      canAuthenticate: true,
+      canWriteInvoices: canWrite,
+      canReadInvoices: canRead,
+      error: errors.isEmpty ? null : errors.join(', '),
+    );
   }
 }

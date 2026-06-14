@@ -177,7 +177,7 @@ extension KsefInvoiceXml on KsefInvoice {
       sb.writeln('      <FormaPlatnosci>$paymentCode</FormaPlatnosci>');
     } else {
       if (payment.methodDescription == null) {
-        KsefException('invoice', 'methodDescription must be set if method == other');
+        KsefException('invoice', null, 'methodDescription must be set if method == other');
       }
       sb.writeln('      <PlatnoscInna>1</PlatnoscInna>');
       sb.writeln('      <OpisPlatnosci>${payment.methodDescription}</OpisPlatnosci>');

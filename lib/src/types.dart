@@ -3,11 +3,12 @@ part of '../ksef.dart';
 /// Exception thrown by KSeF API, may include network exceptions
 class KsefException implements Exception {
   String path;
+  int? httpCode;
   String message;
-  KsefException(this.path, this.message);
+  KsefException(this.path, this.httpCode, this.message);
 
   @override
-  String toString() => '$path: $message';
+  String toString() => '$path [${httpCode ?? '??'}]: $message';
 }
 
 enum KsefEnvironment {
@@ -28,6 +29,21 @@ class KsefPublicKey {
   String publicKeyId;
   RSAPublicKey publicKey;
   KsefPublicKey(this.publicKeyId, this.publicKey);
+}
+
+/// Result of token test
+class KsefTokenTest {
+  final bool canAuthenticate;
+  final bool canWriteInvoices; // InvoiceWrite
+  final bool canReadInvoices; // InvoiceRead
+  final String? error;
+
+  const KsefTokenTest({
+    required this.canAuthenticate,
+    required this.canWriteInvoices,
+    required this.canReadInvoices,
+    this.error,
+  });
 }
 
 enum KsefInvoiceStatusCode { pending, accepted, rejected, duplicate, unknown }
