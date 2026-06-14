@@ -1,6 +1,6 @@
 name: ksef
 description: Unofficial Dart client for the Polish e-invoicing API (KSeF) used by swift.shop
-version: 0.2.0
+version: 0.3.0
 homepage: https://github.com/coffee-software/ksef
 environment:
   sdk: ^3.10.0
