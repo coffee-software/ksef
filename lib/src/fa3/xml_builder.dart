@@ -13,7 +13,7 @@ extension KsefInvoiceXml on KsefInvoice {
     );
     sb.writeln('    <WariantFormularza>3</WariantFormularza>');
     sb.writeln(
-      '    <DataWytworzeniaFa>${KsefClient.formatUtcTimestamp(DateTime.now())}</DataWytworzeniaFa>',
+      '    <DataWytworzeniaFa>${KsefClient.formatUtcTimestamp(createdDate)}</DataWytworzeniaFa>',
     );
     sb.writeln('    <SystemInfo>$systemInfo</SystemInfo>');
     sb.writeln('  </Naglowek>');
@@ -40,7 +40,7 @@ extension KsefInvoiceXml on KsefInvoice {
     }
 
     // Totals
-    final invoiceTotals = totals ?? calcTotals(lines);
+    final invoiceTotals = getTotals();
 
     // 23%
     if (invoiceTotals.byRate.containsKey(KsefVatRate.p23)) {
@@ -204,7 +204,11 @@ extension KsefInvoiceXml on KsefInvoice {
     if (p.euVatPrefix != null) {
       sb.writeln('      <PrefiksPodatnika>${p.euVatPrefix}</PrefiksPodatnika>');
     }
-    sb.writeln('      <NIP>${p.nip}</NIP>');
+    if (p.nip == null) {
+      sb.writeln('      <BrakID>1</BrakID>');
+    } else {
+      sb.writeln('      <NIP>${p.nip}</NIP>');
+    }
     sb.writeln('      <Nazwa>${_esc(p.name)}</Nazwa>');
     sb.writeln('    </DaneIdentyfikacyjne>');
     sb.writeln('    <Adres>');

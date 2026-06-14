@@ -5,7 +5,7 @@ part of '../../ksef.dart';
 class KsefParty {
   /// BT-31 / BT-48: Polish tax ID (NIP), 10 digits
   /// FA(3): DaneIdentyfikacyjne/NIP
-  final String nip;
+  final String? nip;
 
   /// BT-27 / BT-44: Full company name
   /// FA(3): DaneIdentyfikacyjne/PelnaNazwa

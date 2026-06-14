@@ -76,6 +76,9 @@ class KsefPayment {
 /// are documented inline where no BT equivalent exists.
 /// Maps to FA(3): root Faktura element
 class KsefInvoice {
+  /// FA(3): DataWytworzeniaFa
+  final DateTime createdDate;
+
   /// BT-1: Invoice number (unique, assigned by issuer)
   /// FA(3): Fa/P_2
   final String number;
@@ -116,10 +119,12 @@ class KsefInvoice {
   /// FA(3): Fa/FaWiersz (one per line)
   final List<KsefInvoiceLine> lines;
 
-  /// Pre-calculated totals. If null, will be calculated automatically
-  /// from [lines] when [toXml] is called.
-  /// Use [calcTotals] to preview or [validateTotals] to verify your own calculations.
-  final KsefInvoiceTotals? totals;
+  /// Pre-calculated totals. If null, totals will be calculated
+  /// automatically from [lines] when [toXml] is called.
+  final KsefInvoiceTotals? forceTotals;
+
+  /// Use to preview or verify your own calculations.
+  KsefInvoiceTotals getTotals() => forceTotals ?? calcTotals(lines);
 
   /// BT-9, BT-81, BT-84: Payment details
   /// FA(3): Fa/Platnosc
@@ -136,13 +141,14 @@ class KsefInvoice {
   /// FA(3): system info string
   final String systemInfo;
 
-  const KsefInvoice({
+  KsefInvoice({
     required this.number,
     required this.issueDate,
     required this.seller,
     required this.buyer,
     required this.lines,
     required this.payment,
+    DateTime? createdDate,
     this.issuePlace,
     this.taxPointDate,
     this.type = KsefInvoiceType.vat,
@@ -151,6 +157,6 @@ class KsefInvoice {
     this.annotations = const KsefAnnotations(),
     this.orderNumber,
     this.systemInfo = 'ksef.dart',
-    this.totals,
-  });
+    this.forceTotals,
+  }) : createdDate = createdDate ?? DateTime.now();
 }

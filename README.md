@@ -49,9 +49,10 @@ final invoice = KsefInvoice(
 await session.sendInvoice(invoice);
 ```
 
-Alternatively, `sendRawInvoice()` accepts raw FA(3) XML if you need full control or already have FA(3) XML generated from other software.
+Alternatively, `sendRawInvoice()` accepts raw FA(3) XML if you need full control or already have FA(3) XML generated 
+from other software.
 
-Invoice totals are calculated unless you provide `totals` field explicitly.
+Invoice totals are calculated unless you provide `forceTotals` field explicitly.
 
 ## Installation
 
