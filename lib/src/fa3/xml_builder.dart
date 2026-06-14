@@ -170,16 +170,6 @@ extension KsefInvoiceXml on KsefInvoice {
       }
       sb.writeln('    </FaWiersz>');
     }
-
-    // Order reference
-    if (orderNumber != null) {
-      sb.writeln('    <WarunkiTransakcji>');
-      sb.writeln('      <Zamowienia>');
-      sb.writeln('        <NrZamowienia>$orderNumber</NrZamowienia>');
-      sb.writeln('      </Zamowienia>');
-      sb.writeln('    </WarunkiTransakcji>');
-    }
-
     // Payment
     sb.writeln('    <Platnosc>');
 
@@ -217,6 +207,15 @@ extension KsefInvoiceXml on KsefInvoice {
       sb.writeln('      </RachunekBankowy>');
     }
     sb.writeln('    </Platnosc>');
+
+    // Order reference
+    if (orderNumber != null) {
+      sb.writeln('    <WarunkiTransakcji>');
+      sb.writeln('      <Zamowienia>');
+      sb.writeln('        <NrZamowienia>$orderNumber</NrZamowienia>');
+      sb.writeln('      </Zamowienia>');
+      sb.writeln('    </WarunkiTransakcji>');
+    }
 
     sb.writeln('  </Fa>');
     sb.write('</Faktura>');
