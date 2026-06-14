@@ -54,61 +54,20 @@ KsefInvoiceTotals calcTotals(List<KsefInvoiceLine> lines) {
   return KsefInvoiceTotals(byRate: byRate, grossTotal: gross);
 }
 
-/// Validates provided totals against values calculated from lines.
-/// Returns list of discrepancies — empty list means totals are correct.
-List<String> validateTotals(KsefInvoiceTotals provided, List<KsefInvoiceLine> lines) {
-  final calculated = calcTotals(lines);
-  final errors = <String>[];
-
-  for (final rate in KsefVatRate.values) {
-    final calc = calculated.byRate[rate];
-    final prov = provided.byRate[rate];
-
-    if (calc == null && prov == null) continue;
-
-    if (calc == null && prov != null) {
-      errors.add(
-        '${rate.name}: provided net=${prov.netAmount} vat=${prov.vatAmount} '
-        'but no lines with this rate found',
-      );
-      continue;
-    }
-
-    if (calc != null && prov == null) {
-      errors.add(
-        '${rate.name}: missing totals — expected net=${calc.netAmount} vat=${calc.vatAmount}',
-      );
-      continue;
-    }
-
-    if (_round(calc!.netAmount) != _round(prov!.netAmount)) {
-      errors.add(
-        '${rate.name}: net mismatch — provided=${prov.netAmount} calculated=${calc.netAmount}',
-      );
-    }
-    if (_round(calc.vatAmount) != _round(prov.vatAmount)) {
-      errors.add(
-        '${rate.name}: vat mismatch — provided=${prov.vatAmount} calculated=${calc.vatAmount}',
-      );
-    }
-  }
-
-  if (_round(provided.grossTotal) != _round(calculated.grossTotal)) {
-    errors.add(
-      'grossTotal mismatch — provided=${provided.grossTotal} calculated=${calculated.grossTotal}',
-    );
-  }
-
-  return errors;
-}
-
 double _calcVatAmount(double netAmount, KsefVatRate rate) => switch (rate) {
   KsefVatRate.p23 => _round(netAmount * 0.23),
+  KsefVatRate.p22 => _round(netAmount * 0.22),
   KsefVatRate.p8 => _round(netAmount * 0.08),
+  KsefVatRate.p7 => _round(netAmount * 0.07),
   KsefVatRate.p5 => _round(netAmount * 0.05),
-  KsefVatRate.p0 => 0,
+  KsefVatRate.p4 => _round(netAmount * 0.04),
+  KsefVatRate.p3 => _round(netAmount * 0.03),
+  KsefVatRate.p0kr => 0,
+  KsefVatRate.p0wdt => 0,
+  KsefVatRate.p0ex => 0,
   KsefVatRate.zw => 0,
-  KsefVatRate.np => 0,
+  KsefVatRate.np1 => 0,
+  KsefVatRate.np2 => 0,
   KsefVatRate.oo => 0,
 };
 

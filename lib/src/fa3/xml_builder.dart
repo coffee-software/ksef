@@ -42,23 +42,29 @@ extension KsefInvoiceXml on KsefInvoice {
     // Totals
     final invoiceTotals = getTotals();
 
-    // 23%
-    if (invoiceTotals.byRate.containsKey(KsefVatRate.p23)) {
-      sb.writeln(
-        '    <P_13_1>${_fmt(invoiceTotals.byRate[KsefVatRate.p23]!.netAmount)}</P_13_1>',
-      );
-      sb.writeln(
-        '    <P_14_1>${_fmt(invoiceTotals.byRate[KsefVatRate.p23]!.vatAmount)}</P_14_1>',
-      );
+    // 23% || 22%
+    if (invoiceTotals.byRate.containsKey(KsefVatRate.p23) ||
+        invoiceTotals.byRate.containsKey(KsefVatRate.p22)) {
+      double sumNet =
+          (invoiceTotals.byRate[KsefVatRate.p23]?.netAmount ?? 0) +
+          (invoiceTotals.byRate[KsefVatRate.p22]?.netAmount ?? 0);
+      sb.writeln('    <P_13_1>${_fmt(sumNet)}</P_13_1>');
+      double sumVat =
+          (invoiceTotals.byRate[KsefVatRate.p23]?.vatAmount ?? 0) +
+          (invoiceTotals.byRate[KsefVatRate.p22]?.vatAmount ?? 0);
+      sb.writeln('    <P_14_1>${_fmt(sumVat)}</P_14_1>');
     }
-    // 8%
-    if (invoiceTotals.byRate.containsKey(KsefVatRate.p8)) {
-      sb.writeln(
-        '    <P_13_2>${_fmt(invoiceTotals.byRate[KsefVatRate.p8]!.netAmount)}</P_13_2>',
-      );
-      sb.writeln(
-        '    <P_14_2>${_fmt(invoiceTotals.byRate[KsefVatRate.p8]!.vatAmount)}</P_14_2>',
-      );
+    // 8% || 7%
+    if (invoiceTotals.byRate.containsKey(KsefVatRate.p8) ||
+        invoiceTotals.byRate.containsKey(KsefVatRate.p7)) {
+      double sumNet =
+          (invoiceTotals.byRate[KsefVatRate.p8]?.netAmount ?? 0) +
+          (invoiceTotals.byRate[KsefVatRate.p7]?.netAmount ?? 0);
+      sb.writeln('    <P_13_2>${_fmt(sumNet)}</P_13_2>');
+      double sumVat =
+          (invoiceTotals.byRate[KsefVatRate.p8]?.vatAmount ?? 0) +
+          (invoiceTotals.byRate[KsefVatRate.p7]?.vatAmount ?? 0);
+      sb.writeln('    <P_14_2>${_fmt(sumVat)}</P_14_2>');
     }
     // 5%
     if (invoiceTotals.byRate.containsKey(KsefVatRate.p5)) {
@@ -69,37 +75,56 @@ extension KsefInvoiceXml on KsefInvoice {
         '    <P_14_3>${_fmt(invoiceTotals.byRate[KsefVatRate.p5]!.vatAmount)}</P_14_3>',
       );
     }
-    // 0% — P_13_4/P_14_4
-    if (invoiceTotals.byRate.containsKey(KsefVatRate.p0)) {
-      sb.writeln(
-        '    <P_13_4>${_fmt(invoiceTotals.byRate[KsefVatRate.p0]!.netAmount)}</P_13_4>',
-      );
-      sb.writeln('    <P_14_4>0.00</P_14_4>');
+    // 4% || 3%
+    if (invoiceTotals.byRate.containsKey(KsefVatRate.p4) ||
+        invoiceTotals.byRate.containsKey(KsefVatRate.p3)) {
+      double sumNet =
+          (invoiceTotals.byRate[KsefVatRate.p4]?.netAmount ?? 0) +
+          (invoiceTotals.byRate[KsefVatRate.p3]?.netAmount ?? 0);
+      sb.writeln('    <P_13_4>${_fmt(sumNet)}</P_13_4>');
+      double sumVat =
+          (invoiceTotals.byRate[KsefVatRate.p4]?.vatAmount ?? 0) +
+          (invoiceTotals.byRate[KsefVatRate.p3]?.vatAmount ?? 0);
+      sb.writeln('    <P_14_4>${_fmt(sumVat)}</P_14_4>');
     }
-    // ZW — P_13_5 (bez P_14)
-    if (invoiceTotals.byRate.containsKey(KsefVatRate.zw)) {
+
+    if (invoiceTotals.byRate.containsKey(KsefVatRate.p0kr)) {
       sb.writeln(
-        '    <P_13_5>${_fmt(invoiceTotals.byRate[KsefVatRate.zw]!.netAmount)}</P_13_5>',
+        '    <P_13_6_1>${_fmt(invoiceTotals.byRate[KsefVatRate.p0kr]!.netAmount)}</P_13_6_1>',
       );
     }
-    // NP — P_13_6 (bez P_14)
-    if (invoiceTotals.byRate.containsKey(KsefVatRate.np)) {
+    if (invoiceTotals.byRate.containsKey(KsefVatRate.p0wdt)) {
       sb.writeln(
-        '    <P_13_6>${_fmt(invoiceTotals.byRate[KsefVatRate.np]!.netAmount)}</P_13_6>',
+        '    <P_13_6_2>${_fmt(invoiceTotals.byRate[KsefVatRate.p0wdt]!.netAmount)}</P_13_6_2>',
       );
     }
-    // OO — P_13_7 (bez P_14)
-    if (invoiceTotals.byRate.containsKey(KsefVatRate.oo)) {
+    if (invoiceTotals.byRate.containsKey(KsefVatRate.p0ex)) {
       sb.writeln(
-        '    <P_13_7>${_fmt(invoiceTotals.byRate[KsefVatRate.oo]!.netAmount)}</P_13_7>',
+        '    <P_13_6_3>${_fmt(invoiceTotals.byRate[KsefVatRate.p0ex]!.netAmount)}</P_13_6_3>',
       );
     }
 
-    if (invoiceTotals.byRate.containsKey(KsefVatRate.p0)) {
+    if (invoiceTotals.byRate.containsKey(KsefVatRate.zw)) {
       sb.writeln(
-        '    <P_13_6>${_fmt(invoiceTotals.byRate[KsefVatRate.p0]!.netAmount)}</P_13_6>',
+        '    <P_13_7>${_fmt(invoiceTotals.byRate[KsefVatRate.zw]!.netAmount)}</P_13_7>',
       );
     }
+    if (invoiceTotals.byRate.containsKey(KsefVatRate.np1)) {
+      sb.writeln(
+        '    <P_13_8>${_fmt(invoiceTotals.byRate[KsefVatRate.np1]!.netAmount)}</P_13_8>',
+      );
+    }
+    if (invoiceTotals.byRate.containsKey(KsefVatRate.np2)) {
+      sb.writeln(
+        '    <P_13_9>${_fmt(invoiceTotals.byRate[KsefVatRate.np2]!.netAmount)}</P_13_9>',
+      );
+    }
+    if (invoiceTotals.byRate.containsKey(KsefVatRate.oo)) {
+      sb.writeln(
+        '    <P_13_10>${_fmt(invoiceTotals.byRate[KsefVatRate.oo]!.netAmount)}</P_13_10>',
+      );
+    }
+
     // Gross total
     sb.writeln('    <P_15>${_fmt(invoiceTotals.grossTotal)}</P_15>');
 
@@ -239,12 +264,19 @@ extension KsefInvoiceXml on KsefInvoice {
 
   String _vatRateCode(KsefVatRate r) => switch (r) {
     KsefVatRate.p23 => '23',
+    KsefVatRate.p22 => '22',
     KsefVatRate.p8 => '8',
+    KsefVatRate.p7 => '8',
     KsefVatRate.p5 => '5',
-    KsefVatRate.p0 => '0',
-    KsefVatRate.zw => 'ZW',
-    KsefVatRate.np => 'NP',
-    KsefVatRate.oo => 'OO',
+    KsefVatRate.p4 => '4',
+    KsefVatRate.p3 => '3',
+    KsefVatRate.p0kr => '0 KR',
+    KsefVatRate.p0wdt => '0 WDT',
+    KsefVatRate.p0ex => '0 EX',
+    KsefVatRate.zw => 'zw',
+    KsefVatRate.np1 => 'np I',
+    KsefVatRate.np2 => 'np II',
+    KsefVatRate.oo => 'oo',
   };
 
   int? _paymentMethodCode(KsefPaymentMethod m) => switch (m) {
