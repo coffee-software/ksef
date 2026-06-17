@@ -4,10 +4,12 @@ part of '../../ksef.dart';
 /// FA(3) specific — grouped by Polish VAT rate
 class KsefVatTotal {
   /// Net amount sum for this VAT rate
-  final double netAmount;
+  /// in minor currency units (e.g. grosz for PLN, cent for EUR)
+  final int netAmount;
 
   /// VAT amount for this rate (0 for ZW/NP/OO)
-  final double vatAmount;
+  /// in minor currency units (e.g. grosz for PLN, cent for EUR)
+  final int vatAmount;
 
   const KsefVatTotal({required this.netAmount, required this.vatAmount});
 }
@@ -20,28 +22,28 @@ class KsefInvoiceTotals {
 
   /// BT-109: Total gross amount
   /// FA(3): Fa/P_15
-  final double grossTotal;
+  final int grossTotal;
 
   const KsefInvoiceTotals({required this.byRate, required this.grossTotal});
 
   /// Net total across all rates (sum of all byRate.netAmount)
-  double get netTotal => byRate.values.fold(0, (s, t) => s + t.netAmount);
+  int get netTotal => byRate.values.fold(0, (s, t) => s + t.netAmount);
 
   /// VAT total across all rates
-  double get vatTotal => byRate.values.fold(0, (s, t) => s + t.vatAmount);
+  int get vatTotal => byRate.values.fold(0, (s, t) => s + t.vatAmount);
 }
 
 /// Calculates invoice totals from line items.
 /// Amounts are rounded to 2 decimal places per Polish VAT law requirements.
 KsefInvoiceTotals calcTotals(List<KsefInvoiceLine> lines) {
-  final map = <KsefVatRate, ({double net, double vat})>{};
+  final map = <KsefVatRate, ({int net, int vat})>{};
 
   for (final line in lines) {
-    final current = map[line.vatRate] ?? (net: 0.0, vat: 0.0);
+    final current = map[line.vatRate] ?? (net: 0, vat: 0);
     final vatAmount = _calcVatAmount(line.effectiveNetAmount, line.vatRate);
     map[line.vatRate] = (
-      net: _round(current.net + line.effectiveNetAmount),
-      vat: _round(current.vat + vatAmount),
+      net: current.net + line.effectiveNetAmount,
+      vat: current.vat + vatAmount,
     );
   }
 
@@ -54,7 +56,7 @@ KsefInvoiceTotals calcTotals(List<KsefInvoiceLine> lines) {
   return KsefInvoiceTotals(byRate: byRate, grossTotal: gross);
 }
 
-double _calcVatAmount(double netAmount, KsefVatRate rate) => switch (rate) {
+int _calcVatAmount(int netAmount, KsefVatRate rate) => switch (rate) {
   KsefVatRate.p23 => _round(netAmount * 0.23),
   KsefVatRate.p22 => _round(netAmount * 0.22),
   KsefVatRate.p8 => _round(netAmount * 0.08),
@@ -71,4 +73,4 @@ double _calcVatAmount(double netAmount, KsefVatRate rate) => switch (rate) {
   KsefVatRate.oo => 0,
 };
 
-double _round(double v) => double.parse(v.toStringAsFixed(2));
+int _round(double v) => v.round();

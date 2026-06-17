@@ -74,7 +74,7 @@ String testInvoiceXml(String nip, String invoiceNumber, DateTime date) =>
       <NrWierszaFa>1</NrWierszaFa>
       <P_7>example service</P_7>
       <P_8A>usł</P_8A>
-      <P_8B>2.00</P_8B>
+      <P_8B>2</P_8B>
       <P_9A>100.00</P_9A>
       <P_11>200.00</P_11>
       <P_12>23</P_12>
@@ -116,8 +116,8 @@ void main() async {
         lineNumber: 1,
         description: 'example service',
         unit: 'usł',
-        quantity: 2.0,
-        unitNetPrice: 100.00,
+        quantity: 2,
+        unitNetPrice: 10000,
         vatRate: KsefVatRate.p23,
       ),
     ],

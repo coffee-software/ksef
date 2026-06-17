@@ -35,7 +35,7 @@ final invoice = KsefInvoice(
     KsefInvoiceLine(
       description: 'Web development services',
       quantity: 1,
-      unitNetPrice: 100.00,
+      unitNetPrice: 10000, // = 100.00 PLN (prices are stored in minor currency units)
       vatRate: KsefVatRate.p23,
     ),
   ],
@@ -53,6 +53,10 @@ Alternatively, `sendRawInvoice()` accepts raw FA(3) XML if you need full control
 from other software.
 
 Invoice totals are calculated unless you provide `forceTotals` field explicitly.
+
+All monetary amounts use integers in minor currency units (e.g. grosz for PLN,
+cent for EUR) to avoid floating-point precision errors. Values are converted
+to decimal strings with the correct number of fractional digits when generating XML.
 
 ## Installation
 

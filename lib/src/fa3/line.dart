@@ -21,11 +21,13 @@ class KsefInvoiceLine {
 
   /// BT-146: Unit net price
   /// FA(3): P_9A
-  final double unitNetPrice;
+  /// in minor currency units (e.g. grosz for PLN, cent for EUR)
+  final int unitNetPrice;
 
   /// BT-131: Line net amount (quantity * unitNetPrice)
   /// FA(3): P_11
-  final double? netAmount;
+  /// in minor currency units (e.g. grosz for PLN, cent for EUR)
+  final int? netAmount;
 
   /// FA(3) specific: VAT rate for this line
   /// FA(3): P_12
@@ -48,5 +50,5 @@ class KsefInvoiceLine {
 
   /// Effective net amount
   /// this might be extended in the future to add discount functionality.
-  double get effectiveNetAmount => netAmount ?? _round(quantity * unitNetPrice);
+  int get effectiveNetAmount => netAmount ?? _round(quantity * unitNetPrice);
 }

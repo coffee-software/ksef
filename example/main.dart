@@ -34,7 +34,7 @@ Future<KsefInvoiceRequest> sendGeneratedInvoice(KsefSession session, String nip)
         description: 'example service',
         unit: 'usł',
         quantity: 2.0,
-        unitNetPrice: 100.00,
+        unitNetPrice: 10000,
         vatRate: KsefVatRate.p23,
       ),
     ],

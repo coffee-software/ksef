@@ -45,11 +45,11 @@ extension KsefInvoiceXml on KsefInvoice {
     // 23% || 22%
     if (invoiceTotals.byRate.containsKey(KsefVatRate.p23) ||
         invoiceTotals.byRate.containsKey(KsefVatRate.p22)) {
-      double sumNet =
+      int sumNet =
           (invoiceTotals.byRate[KsefVatRate.p23]?.netAmount ?? 0) +
           (invoiceTotals.byRate[KsefVatRate.p22]?.netAmount ?? 0);
       sb.writeln('    <P_13_1>${_fmt(sumNet)}</P_13_1>');
-      double sumVat =
+      int sumVat =
           (invoiceTotals.byRate[KsefVatRate.p23]?.vatAmount ?? 0) +
           (invoiceTotals.byRate[KsefVatRate.p22]?.vatAmount ?? 0);
       sb.writeln('    <P_14_1>${_fmt(sumVat)}</P_14_1>');
@@ -57,11 +57,11 @@ extension KsefInvoiceXml on KsefInvoice {
     // 8% || 7%
     if (invoiceTotals.byRate.containsKey(KsefVatRate.p8) ||
         invoiceTotals.byRate.containsKey(KsefVatRate.p7)) {
-      double sumNet =
+      int sumNet =
           (invoiceTotals.byRate[KsefVatRate.p8]?.netAmount ?? 0) +
           (invoiceTotals.byRate[KsefVatRate.p7]?.netAmount ?? 0);
       sb.writeln('    <P_13_2>${_fmt(sumNet)}</P_13_2>');
-      double sumVat =
+      int sumVat =
           (invoiceTotals.byRate[KsefVatRate.p8]?.vatAmount ?? 0) +
           (invoiceTotals.byRate[KsefVatRate.p7]?.vatAmount ?? 0);
       sb.writeln('    <P_14_2>${_fmt(sumVat)}</P_14_2>');
@@ -78,11 +78,11 @@ extension KsefInvoiceXml on KsefInvoice {
     // 4% || 3%
     if (invoiceTotals.byRate.containsKey(KsefVatRate.p4) ||
         invoiceTotals.byRate.containsKey(KsefVatRate.p3)) {
-      double sumNet =
+      int sumNet =
           (invoiceTotals.byRate[KsefVatRate.p4]?.netAmount ?? 0) +
           (invoiceTotals.byRate[KsefVatRate.p3]?.netAmount ?? 0);
       sb.writeln('    <P_13_4>${_fmt(sumNet)}</P_13_4>');
-      double sumVat =
+      int sumVat =
           (invoiceTotals.byRate[KsefVatRate.p4]?.vatAmount ?? 0) +
           (invoiceTotals.byRate[KsefVatRate.p3]?.vatAmount ?? 0);
       sb.writeln('    <P_14_4>${_fmt(sumVat)}</P_14_4>');
@@ -161,7 +161,7 @@ extension KsefInvoiceXml on KsefInvoice {
       sb.writeln('      <NrWierszaFa>${line.lineNumber}</NrWierszaFa>');
       sb.writeln('      <P_7>${_esc(line.description)}</P_7>');
       sb.writeln('      <P_8A>${line.unit}</P_8A>');
-      sb.writeln('      <P_8B>${_fmt(line.quantity)}</P_8B>');
+      sb.writeln('      <P_8B>${_fmtQty(line.quantity)}</P_8B>');
       sb.writeln('      <P_9A>${_fmt(line.unitNetPrice)}</P_9A>');
       sb.writeln('      <P_11>${_fmt(line.effectiveNetAmount)}</P_11>');
       sb.writeln('      <P_12>${_vatRateCode(line.vatRate)}</P_12>');
@@ -250,7 +250,16 @@ extension KsefInvoiceXml on KsefInvoice {
     return sb.toString();
   }
 
-  String _fmt(double v) => v.toStringAsFixed(2);
+  String _fmt(int v) => (v / 100).toStringAsFixed(2);
+
+  /// Formats quantity for FA(3) P_8B field.
+  /// Removes trailing zeros: 2.0 → "2", 11.3527 → "11.3527", 1.5 → "1.5"
+  String _fmtQty(double qty) {
+    return qty
+        .toStringAsFixed(10)
+        .replaceAll(RegExp(r'0+$'), '')
+        .replaceAll(RegExp(r'\.$'), '');
+  }
 
   String _esc(String s) => htmlEscape.convert(s);
 
