@@ -1,3 +1,9 @@
+# 1.0.0
+
+* **breaking change:** Monetary amounts now use `int` in minor currency units (grosz for PLN,
+  cent for EUR) instead of `double` to avoid floating-point precision errors.
+  Multiply existing values by 100 to migrate (e.g. `unitNetPrice: 100.00` → `unitNetPrice: 10000`).
+
 # 0.3.0
 
 * added `buildVerificationUrl` `validateKsefNumber` `buildKsefNumber` `testToken` helpers
