@@ -1,3 +1,7 @@
+# 1.1.0
+
+* Added simple `NbpClient` to fetch NBP exchange rates for foreign-currency invoices
+
 # 1.0.0
 
 * **breaking change:** Monetary amounts now use `int` in minor currency units (grosz for PLN,
