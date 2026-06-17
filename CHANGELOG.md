@@ -1,3 +1,7 @@
+# 1.1.1
+
+* bugfix: currency rate location in xml
+
 # 1.1.0
 
 * Added simple `NbpClient` to fetch NBP exchange rates for foreign-currency invoices
