@@ -35,14 +35,6 @@ extension KsefInvoiceXml on KsefInvoice {
     if (taxPointDate != null) {
       sb.writeln('    <P_6>${KsefClient.formatDate(taxPointDate!)}</P_6>');
     }
-    if (currency != 'PLN') {
-      if (exchangeRate != null) {
-        /// rate formatted to 6 decimal places, as required by schema field [KursWaluty].
-        sb.writeln('    <KursWaluty>${exchangeRate!.toStringAsFixed(6)}</KursWaluty>');
-      } else {
-        KsefException('invoice', null, 'exchangeRate is required for non PLN invoices');
-      }
-    }
 
     // Totals
     final invoiceTotals = getTotals();
@@ -172,6 +164,16 @@ extension KsefInvoiceXml on KsefInvoice {
       sb.writeln('      <P_12>${_vatRateCode(line.vatRate)}</P_12>');
       if (line.gtu != null) {
         sb.writeln('      <GTU>${line.gtu}</GTU>');
+      }
+
+      // optional exchange rate
+      if (currency != 'PLN') {
+        if (exchangeRate != null) {
+          /// rate formatted to 6 decimal places, as required by schema field [KursWaluty].
+          sb.writeln('    <KursWaluty>${exchangeRate!.toStringAsFixed(6)}</KursWaluty>');
+        } else {
+          KsefException('invoice', null, 'exchangeRate is required for non PLN invoices');
+        }
       }
       sb.writeln('    </FaWiersz>');
     }
