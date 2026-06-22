@@ -143,6 +143,70 @@ void main() async {
     expect(invalidResult, false);
   });
 
+  test('invoice party tax id generation', () async {
+    final buffer = StringBuffer();
+
+    expect(() async {
+      KsefInvoiceXml.buildPartyXml(
+        buffer,
+        'TAG',
+        KsefParty(
+          taxIdType: KsefTaxIdType.vatUE,
+          nip: '9876543210',
+          name: 'Buyer Corp S.A.',
+          countryCode: 'PL',
+          addressLine1: 'TEST ADDRESS',
+        ),
+      );
+    }, throwsA(isA<KsefException>()));
+
+    buffer.clear();
+    KsefInvoiceXml.buildPartyXml(
+      buffer,
+      'TAG',
+      KsefParty(
+        taxIdType: KsefTaxIdType.vatUE,
+        nip: '9876543210',
+        name: 'Buyer Corp S.A.',
+        countryCode: 'CZ',
+        addressLine1: 'TEST ADDRESS',
+      ),
+    );
+    expect(
+      buffer.toString(),
+      contains("""
+    <DaneIdentyfikacyjne>
+      <KodUE>CZ</KodUE>
+      <NrVatUE>9876543210</NrVatUE>
+      <Nazwa>Buyer Corp S.A.</Nazwa>
+    </DaneIdentyfikacyjne>
+    """),
+    );
+
+    buffer.clear();
+    KsefInvoiceXml.buildPartyXml(
+      buffer,
+      'TAG',
+      KsefParty(
+        taxIdType: KsefTaxIdType.other,
+        nip: '9876543210',
+        name: 'Buyer Corp S.A.',
+        countryCode: 'GB',
+        addressLine1: 'TEST ADDRESS',
+      ),
+    );
+    expect(
+      buffer.toString(),
+      contains("""
+    <DaneIdentyfikacyjne>
+      <KodKraju>GB</KodKraju>
+      <NrID>9876543210</NrID>
+      <Nazwa>Buyer Corp S.A.</Nazwa>
+    </DaneIdentyfikacyjne>
+    """),
+    );
+  });
+
   test('test token', () async {
     final client = KsefClient(.test, config['ksef_nip'], config['ksef_token']);
     final tokenTest = await client.testToken();

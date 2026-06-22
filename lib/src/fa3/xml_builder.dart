@@ -19,10 +19,10 @@ extension KsefInvoiceXml on KsefInvoice {
     sb.writeln('  </Naglowek>');
 
     // Podmiot1 (seller)
-    _buildParty(sb, 'Podmiot1', seller);
+    buildPartyXml(sb, 'Podmiot1', seller);
 
     // Podmiot2 (buyer)
-    _buildParty(sb, 'Podmiot2', buyer);
+    buildPartyXml(sb, 'Podmiot2', buyer);
 
     // Fa
     sb.writeln('  <Fa>');
@@ -172,7 +172,7 @@ extension KsefInvoiceXml on KsefInvoice {
           /// rate formatted to 6 decimal places, as required by schema field [KursWaluty].
           sb.writeln('    <KursWaluty>${exchangeRate!.toStringAsFixed(6)}</KursWaluty>');
         } else {
-          KsefException('invoice', null, 'exchangeRate is required for non PLN invoices');
+          throw KsefException('invoice', null, 'exchangeRate is required for non PLN invoices');
         }
       }
       sb.writeln('    </FaWiersz>');
@@ -199,7 +199,11 @@ extension KsefInvoiceXml on KsefInvoice {
       sb.writeln('      <FormaPlatnosci>$paymentCode</FormaPlatnosci>');
     } else {
       if (payment.methodDescription == null) {
-        KsefException('invoice', null, 'methodDescription must be set if method == other');
+        throw KsefException(
+          'invoice',
+          null,
+          'methodDescription must be set if method == other',
+        );
       }
       sb.writeln('      <PlatnoscInna>1</PlatnoscInna>');
       sb.writeln('      <OpisPlatnosci>${payment.methodDescription}</OpisPlatnosci>');
@@ -229,17 +233,36 @@ extension KsefInvoiceXml on KsefInvoice {
     return sb.toString();
   }
 
-  String _buildParty(StringBuffer sb, String tag, KsefParty p) {
+  static String buildPartyXml(StringBuffer sb, String tag, KsefParty p) {
     sb.writeln('  <$tag>');
     sb.writeln('    <DaneIdentyfikacyjne>');
     if (p.euVatPrefix != null) {
+      if (p.taxIdType != KsefTaxIdType.vatUE) {
+        throw KsefException('invoice', null, 'euVatPrefix is only valid for vatUE type');
+      }
       sb.writeln('      <PrefiksPodatnika>${p.euVatPrefix}</PrefiksPodatnika>');
     }
     if (p.nip == null) {
       sb.writeln('      <BrakID>1</BrakID>');
     } else {
-      sb.writeln('      <NIP>${p.nip}</NIP>');
+      // vat id number consistency
+      if ((p.taxIdType == KsefTaxIdType.nip) != (p.countryCode == 'PL')) {
+        throw KsefException('invoice', null, 'PL entities should be identified by NIP');
+      }
+      if (p.taxIdType == KsefTaxIdType.vatUE && !_ksefEuCountries.contains(p.countryCode)) {
+        throw KsefException('invoice', null, 'VAT-UE requires an EU/XI country code');
+      }
+      if (p.taxIdType == KsefTaxIdType.nip) {
+        sb.writeln('      <NIP>${p.nip}</NIP>');
+      } else if (p.taxIdType == KsefTaxIdType.vatUE) {
+        sb.writeln('      <KodUE>${p.countryCode}</KodUE>');
+        sb.writeln('      <NrVatUE>${p.nip}</NrVatUE>');
+      } else {
+        sb.writeln('      <KodKraju>${p.countryCode}</KodKraju>');
+        sb.writeln('      <NrID>${p.nip}</NrID>');
+      }
     }
+
     sb.writeln('      <Nazwa>${_esc(p.name)}</Nazwa>');
     sb.writeln('    </DaneIdentyfikacyjne>');
     sb.writeln('    <Adres>');
@@ -257,27 +280,27 @@ extension KsefInvoiceXml on KsefInvoice {
     return sb.toString();
   }
 
-  String _fmt(int v) => (v / 100).toStringAsFixed(2);
+  static String _fmt(int v) => (v / 100).toStringAsFixed(2);
 
   /// Formats quantity for FA(3) P_8B field.
   /// Removes trailing zeros: 2.0 → "2", 11.3527 → "11.3527", 1.5 → "1.5"
-  String _fmtQty(double qty) {
+  static String _fmtQty(double qty) {
     return qty
         .toStringAsFixed(10)
         .replaceAll(RegExp(r'0+$'), '')
         .replaceAll(RegExp(r'\.$'), '');
   }
 
-  String _esc(String s) => htmlEscape.convert(s);
+  static String _esc(String s) => htmlEscape.convert(s);
 
-  String _invoiceTypeCode(KsefInvoiceType t) => switch (t) {
+  static String _invoiceTypeCode(KsefInvoiceType t) => switch (t) {
     KsefInvoiceType.vat => 'VAT',
     KsefInvoiceType.correction => 'KOR',
     KsefInvoiceType.advance => 'ZAL',
     KsefInvoiceType.simplified => 'UPR',
   };
 
-  String _vatRateCode(KsefVatRate r) => switch (r) {
+  static String _vatRateCode(KsefVatRate r) => switch (r) {
     KsefVatRate.p23 => '23',
     KsefVatRate.p22 => '22',
     KsefVatRate.p8 => '8',
@@ -294,7 +317,7 @@ extension KsefInvoiceXml on KsefInvoice {
     KsefVatRate.oo => 'oo',
   };
 
-  int? _paymentMethodCode(KsefPaymentMethod m) => switch (m) {
+  static int? _paymentMethodCode(KsefPaymentMethod m) => switch (m) {
     KsefPaymentMethod.cash => 1,
     KsefPaymentMethod.card => 2,
     KsefPaymentMethod.voucher => 3,

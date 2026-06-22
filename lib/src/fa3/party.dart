@@ -3,8 +3,14 @@ part of '../../ksef.dart';
 /// BT-27..BT-44: Seller or Buyer party data
 /// Maps to FA(3): Podmiot1 (seller) or Podmiot2 (buyer)
 class KsefParty {
+  /// set what type of identification number vat field contains
+  final KsefTaxIdType taxIdType;
+
   /// BT-31 / BT-48: Polish tax ID (NIP), 10 digits
+  /// depending on taxIdType this might be NIP, NrVatUE or NrId
   /// FA(3): DaneIdentyfikacyjne/NIP
+  /// FA(3): DaneIdentyfikacyjne/NrVatUE
+  /// FA(3): DaneIdentyfikacyjne/NrId
   final String? nip;
 
   /// BT-27 / BT-44: Full company name
@@ -32,6 +38,7 @@ class KsefParty {
     required this.name,
     required this.countryCode,
     required this.addressLine1,
+    this.taxIdType = KsefTaxIdType.nip,
     this.addressLine2,
     this.euVatPrefix,
   });

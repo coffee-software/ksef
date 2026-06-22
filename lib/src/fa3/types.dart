@@ -25,6 +25,40 @@ enum KsefPaymentMethod {
   other, // none
 }
 
+/// type of tax identification number, used in party data
+enum KsefTaxIdType { nip, vatUE, other }
+
+const List<String> _ksefEuCountries = [
+  "AT",
+  "BE",
+  "BG",
+  "CY",
+  "CZ",
+  "DK",
+  "EE",
+  "FI",
+  "FR",
+  "DE",
+  "EL",
+  "HR",
+  "HU",
+  "IE",
+  "IT",
+  "LV",
+  "LT",
+  "LU",
+  "MT",
+  "NL",
+  "PL",
+  "PT",
+  "RO",
+  "SK",
+  "SI",
+  "ES",
+  "SE",
+  "XI",
+];
+
 /// FA(3) specific: VAT rates supported by Polish law
 enum KsefVatRate {
   p23, // 23%  → P_12 = 23
