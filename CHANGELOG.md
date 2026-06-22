@@ -1,3 +1,7 @@
+# 1.2.0
+
+* Added support for tax identification number for non PL entites via `taxIdType` field
+
 # 1.1.1
 
 * bugfix: currency rate location in xml
